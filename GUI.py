@@ -212,6 +212,9 @@ class GraphicalUserInterface:
             return
         export_path = filedialog.asksaveasfilename(defaultextension=".mp4")
 
+        if export_path == "":
+            return
+
         dialog = Toplevel()
         dialog.grab_set()
         dialog.geometry("500x200")

@@ -9,20 +9,27 @@ class ButtonFragment:
         self.button_time_line = button_time_line
         self.fragment = fragment
         self.default_font = ("Roboto", 12, "bold")
-        self.pixelVirtual = PhotoImage(width=1, height=1)
+        self.pixel_virtual = PhotoImage(width=1, height=1)
         self.button = Button(
             self.button_time_line.frame,
             text=f"{fragment.name}",
             bg="#72FEFE",
             font=self.default_font,
-            # image=self.pixelVirtual,
             anchor="center",
+            image=self.pixel_virtual,
+            width=220,
+            height=220,
             compound="center",
-            height=10,
-            width=10,
             command=self.on_click
         )
-        self.button.pack(side='left')
+        self.button.pack(side=LEFT, padx=20, pady=20)
 
     def on_click(self):
-        self.gui.picked_indexes.append(self.fragment.id)
+        if self.picked:
+            self.button.configure(bg="#72FEFE")
+            self.gui.picked_indexes.remove(self.fragment.id)
+            self.picked = False
+        else:
+            self.button.configure(bg="green")
+            self.gui.picked_indexes.append(self.fragment.id)
+            self.picked = True
