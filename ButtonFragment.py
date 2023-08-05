@@ -28,8 +28,8 @@ class ButtonFragment:
         if self.picked:
             self.button.configure(bg="#72FEFE")
             self.gui.picked_indexes.remove(self.fragment.id)
-            self.picked = False
         else:
             self.button.configure(bg="green")
             self.gui.picked_indexes.append(self.fragment.id)
-            self.picked = True
+        self.picked = not self.picked
+        self.gui.toggle_buttons()

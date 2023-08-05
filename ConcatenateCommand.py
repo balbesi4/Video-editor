@@ -20,7 +20,7 @@ class ConcatenateCommand(CommandInterface):
             self._make_default_concat()
         for fragment in self.fragments:
             self.time_line.remove(fragment)
-        self.time_line.add(self.final_fragment)
+        self.time_line.time_line.insert(self.final_fragment.id, self.final_fragment)
 
     def _make_smooth_concat(self):
         clips = [fragment.clip for fragment in self.fragments]
@@ -58,4 +58,4 @@ class ConcatenateCommand(CommandInterface):
     def undo(self):
         self.time_line.remove(self.final_fragment)
         for fragment in self.fragments:
-            self.time_line.add(fragment)
+            self.time_line.time_line.insert(fragment.id, fragment)

@@ -19,6 +19,8 @@ from UploadImageClipCommand import UploadImageClipCommand
 from UploadVideoClipCommand import UploadVideoClipCommand
 import moviepy.editor as mp
 import moviepy.video.fx.all as vfx
+import cv2
+import pygame
 
 
 class TimeLine:
@@ -84,7 +86,8 @@ class TimeLine:
         set_audio_command.execute()
 
     def swap_clips(self, fragment_1_id: int, fragment_2_id: int):
-        swap_clips_command = SwapClipsCommand(self, self.time_line[fragment_1_id], self.time_line[fragment_2_id])
+        swap_clips_command = SwapClipsCommand(self, self.time_line[fragment_1_id],
+                                              self.time_line[fragment_2_id])
         self.changes.append(swap_clips_command)
         swap_clips_command.execute()
 
@@ -120,22 +123,28 @@ class TimeLine:
         self.changes.append(copy_fragment_command)
         copy_fragment_command.execute()
 
-    def preview(self, *fragment_ids: int):
-        clips = [fragment.clip for fragment in self.time_line if fragment.id in fragment_ids]
+    def preview(self, *fragment_ids: int, width, height):
+        clips = [fragment.clip.fx(vfx.resize, width=width, height=height) for fragment in
+                 self.time_line if fragment.id in fragment_ids]
         full_clip = mp.concatenate_videoclips(clips)
         full_clip.preview()
+        full_clip.close()
 
-    def export(self, name: str, fps, width, height):
-        final_clips = [fragment.clip.fx(vfx.resize, width=width, height=height) for fragment in self.time_line]
+    def export(self, name: str, fps, width, height, gif=False):
+        final_clips = [fragment.clip.fx(vfx.resize, width=width, height=height) for fragment in
+                       self.time_line]
         clip_to_export = mp.concatenate_videoclips(final_clips)
-        clip_to_export.write_videofile(name, fps)
+        if not gif:
+            clip_to_export.write_videofile(name, fps)
+        else:
+            clip_to_export.write_gif(name, fps)
         clip_to_export.close()
 
     def count(self):
         return len(self.time_line)
 
-    def remove(self, fragment: Fragment):
-        remove_command = RemoveFragmentCommand(self, fragment)
+    def remove(self, *fragment_ids: int):
+        remove_command = RemoveFragmentCommand(self, *fragment_ids)
         self.changes.append(remove_command)
         remove_command.execute()
 

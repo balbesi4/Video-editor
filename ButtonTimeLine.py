@@ -10,12 +10,10 @@ class ButtonTimeLine:
         canvas = Canvas(self.gui.window, width=750, height=300)
         canvas.place(x=300)
 
-        # создаем фрейм на канвасе
         self.frame = Frame(canvas, bd=2)
         self.frame.pack(side='left', fill='both', expand=True)
         canvas.create_window((0, 0), window=self.frame, anchor='nw')
 
-        # настраиваем скроллбар
         scrollbar = Scrollbar(self.gui.window, orient='horizontal',
                               command=canvas.xview)
         scrollbar.place(relx=0.29, rely=0.54, relwidth=0.71, anchor='sw')
