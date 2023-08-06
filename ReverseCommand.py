@@ -8,8 +8,7 @@ class ReverseCommand(CommandInterface):
         self.fragment = fragment
 
     def execute(self):
-        self.fragment.clip = self.fragment.clip.fl_time(lambda t: -1 * t,
-                                                        apply_to=['mask', 'audio'])
+        self.fragment.clip = self.fragment.clip.fx(vfx.mirror_x)
 
     def undo(self):
         self.execute()

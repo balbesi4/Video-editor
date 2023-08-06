@@ -8,6 +8,7 @@ from CropClipCommand import CropClipCommand
 from FadeInCommand import FadeInCommand
 from FadeOutCommand import FadeOutCommand
 from Fragment import Fragment
+from MirrorCommand import MirrorCommand
 from RemoveAudioCommand import RemoveAudioCommand
 from RemoveFragmentCommand import RemoveFragmentCommand
 from ReverseCommand import ReverseCommand
@@ -19,8 +20,8 @@ from UploadImageClipCommand import UploadImageClipCommand
 from UploadVideoClipCommand import UploadVideoClipCommand
 import moviepy.editor as mp
 import moviepy.video.fx.all as vfx
+import os
 import cv2
-import pygame
 
 
 class TimeLine:
@@ -123,12 +124,10 @@ class TimeLine:
         self.changes.append(copy_fragment_command)
         copy_fragment_command.execute()
 
-    def preview(self, *fragment_ids: int, width, height):
-        clips = [fragment.clip.fx(vfx.resize, width=width, height=height) for fragment in
-                 self.time_line if fragment.id in fragment_ids]
-        full_clip = mp.concatenate_videoclips(clips)
-        full_clip.preview()
-        full_clip.close()
+    def mirror(self, fragment_id, x):
+        mirror_command = MirrorCommand(x, self.time_line[fragment_id])
+        self.changes.append(mirror_command)
+        mirror_command.execute()
 
     def export(self, name: str, fps, width, height, gif=False):
         final_clips = [fragment.clip.fx(vfx.resize, width=width, height=height) for fragment in

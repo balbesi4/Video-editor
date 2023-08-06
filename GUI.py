@@ -176,12 +176,12 @@ class GraphicalUserInterface:
             text="Удалить фрагменты",
             command=lambda: self.remove_fragments_handler()
         )
-        self.preview_button = Button(
+        self.mirror_button = Button(
             self.command_frame,
             font=self.main_font,
             bg="#938CDD",
-            text="Предпросмотр",
-            command=lambda: self.preview_handler()
+            text="Отзеркалить картинку",
+            command=lambda: self.mirror_handler()
         )
         self.change_speed_button.grid(row=0, column=0, stick="we", padx=10, pady=15)
         self.change_volume_button.grid(row=1, column=0, stick="we", padx=10, pady=15)
@@ -198,7 +198,7 @@ class GraphicalUserInterface:
         self.split_fragment_button.grid(row=0, column=3, stick="we", padx=10, pady=15)
         self.copy_fragment_button.grid(row=1, column=3, stick="we", padx=10, pady=15)
         self.remove_fragments_button.grid(row=2, column=3, stick="we", padx=10, pady=15)
-        self.preview_button.grid(row=3, column=3, stick="we", padx=10, pady=15)
+        self.mirror_button.grid(row=3, column=3, stick="we", padx=10, pady=15)
 
         self.one_button_commands = [self.change_speed_button, self.change_volume_button,
                                     self.crop_clip_button, self.fade_in_button,
@@ -206,14 +206,13 @@ class GraphicalUserInterface:
                                     self.crop_picture_button, self.reverse_button,
                                     self.split_fragment_button, self.copy_fragment_button,
                                     self.remove_fragments_button, self.remove_audio_button,
-                                    self.rotate_clips_button, self.preview_button]
+                                    self.rotate_clips_button, self.mirror_button]
         self.two_button_commands = [self.concatenate_button, self.swap_clips_button,
                                     self.rotate_clips_button, self.remove_audio_button,
-                                    self.preview_button, self.remove_fragments_button,
-                                    self.preview_button]
+                                    self.mirror_button, self.remove_fragments_button]
         self.many_button_commands = [self.concatenate_button, self.rotate_clips_button,
-                                     self.remove_audio_button, self.preview_button,
-                                     self.remove_fragments_button, self.preview_button]
+                                     self.remove_audio_button, self.mirror_button,
+                                     self.remove_fragments_button]
 
         self.button_time_line = ButtonTimeLine(self, self.time_line)
         self.toggle_buttons()
@@ -604,6 +603,29 @@ class GraphicalUserInterface:
         self.time_line.swap_clips(self.picked_indexes[0], self.picked_indexes[1])
         self.update_after_command()
 
+    def mirror_handler(self):
+        dialog = Toplevel()
+        dialog.grab_set()
+        dialog.geometry("300x60")
+        dialog.resizable(False, False)
+        text_label = Label(dialog, text="Отзеркалить по")
+        text_label.grid(row=0, column=0)
+        mirror_var = StringVar()
+        mirror_var.set("горизонтали")
+        option_menu = OptionMenu(dialog, mirror_var, "горизонтали", "вертикали")
+        option_menu.grid(row=0, column=1)
+        apply_button = Button(dialog, text="Готово",
+                              command=lambda: self.apply_mirror(mirror_var.get(), dialog))
+        cancel_button = Button(dialog, text="Отменить", command=dialog.destroy)
+        apply_button.place(x=150, y=30)
+        cancel_button.place(x=220, y=30)
+
+    def apply_mirror(self, side, dialog):
+        x = side == "горизонтали"
+        dialog.destroy()
+        self.time_line.mirror(self.picked_indexes[0], x)
+        self.update_after_command()
+
     def split_fragment_handler(self):
         dialog = Toplevel()
         dialog.grab_set()
@@ -638,38 +660,14 @@ class GraphicalUserInterface:
         self.time_line.remove(*self.picked_indexes)
         self.update_after_command()
 
-    def preview_handler(self):
-        dialog = Toplevel()
-        dialog.grab_set()
-        dialog.geometry("400x60")
-        dialog.resizable(False, False)
-        res_label = Label(dialog, text="Введите разрешение")
-        res_label.grid(row=0, column=0)
-        width_entry = Entry(dialog)
-        width_entry.grid(row=0, column=1)
-        x_label = Label(dialog, text="x")
-        x_label.grid(row=0, column=2)
-        height_entry = Entry(dialog)
-        height_entry.grid(row=0, column=3)
-        apply_button = Button(dialog, text="Готово",
-                              command=lambda: self.apply_preview(width_entry.get(),
-                                                                 height_entry.get(), dialog))
-        cancel_button = Button(dialog, text="Отменить", command=dialog.destroy)
-        apply_button.place(x=250, y=30)
-        cancel_button.place(x=320, y=30)
-
-    def apply_preview(self, width, height, dialog):
-        if not (width.isdigit() and height.isdigit()):
-            self.show_error("Ширина и высота в разрешении должны быть натуральными числами")
-            return
-        dialog.destroy()
-        self.time_line.preview(*self.picked_indexes, int(width), int(height))
-        self.update_after_command()
-
     def update_after_command(self):
         self.button_time_line.update()
         self.picked_indexes.clear()
         self.toggle_buttons()
+
+    def exit_handler(self):
+        for fragment in self.time_line.time_line:
+            fragment.clip.close()
 
     def toggle_buttons(self):
         if len(self.picked_indexes) == 0:
