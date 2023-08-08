@@ -13,7 +13,7 @@ class CopyFragmentCommand(CommandInterface):
 
     def execute(self):
         self.new_fragment = Fragment(self.fragment.clip.copy(), self.fragment.id + 1, self.fragment.path)
-        self.time_line.add(self.new_fragment)
+        self.time_line.time_line.insert(self.new_fragment.id, self.new_fragment)
 
     def undo(self):
-        self.time_line.remove(self.new_fragment)
+        self.time_line.time_line.remove(self.new_fragment)

@@ -7,7 +7,7 @@ class RotateClipsCommand(CommandInterface):
         fr_str = ""
         for fragment in self.fragments:
             fr_str += f"{fragment.id + 1}, "
-        fr_str = fr_str[:-1]
+        fr_str = fr_str[:-2]
         return f"Поворот клипов фрагментов {fr_str} на {self.angle} градусов"
 
     def __init__(self, *fragments: Fragment, angle):

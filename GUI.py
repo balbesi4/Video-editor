@@ -219,10 +219,9 @@ class GraphicalUserInterface:
                                     self.rotate_clips_button, self.mirror_button]
         self.two_button_commands = [self.concatenate_button, self.swap_clips_button,
                                     self.rotate_clips_button, self.remove_audio_button,
-                                    self.mirror_button, self.remove_fragments_button]
+                                    self.remove_fragments_button]
         self.many_button_commands = [self.concatenate_button, self.rotate_clips_button,
-                                     self.remove_audio_button, self.mirror_button,
-                                     self.remove_fragments_button]
+                                     self.remove_audio_button, self.remove_fragments_button]
 
         self.button_time_line = ButtonTimeLine(self, self.time_line)
         self.toggle_buttons()
@@ -244,8 +243,7 @@ class GraphicalUserInterface:
         if not video_path.endswith(".mp4"):
             self.show_error("Файл должен быть с расширением .mp4")
             return
-        clip = mp.VideoFileClip(video_path)
-        fragment = Fragment(clip, len(self.time_line.time_line), video_path)
+
         self.time_line.upload_video(video_path)
         self.update_after_command()
 
@@ -330,36 +328,32 @@ class GraphicalUserInterface:
             self.show_error("Длительность должна быть положительным числом")
             return
 
-        clip = mp.ImageClip(image_path, duration=float(duration))
-        fragment = Fragment(clip, len(self.time_line.time_line), image_path)
         dialog.destroy()
-        self.time_line.upload_image(image_path, duration)
+        self.time_line.upload_image(image_path, float(duration))
         self.update_after_command()
 
     def story_changes_handler(self):
-        label_text = ""
-        change_number = 1
-        if len(self.time_line.changes) == 0:
-            label_text = "История изменений на данный момент пуста"
-        else:
-            for command in self.time_line.changes:
-                label_text += f"{change_number}. {str(command)}\n"
-                change_number += 1
-            label_text = label_text[:-1]
         dialog = Toplevel()
         dialog.grab_set()
         dialog.resizable(False, False)
-        dialog.geometry("650x200")
-        frame = Frame(dialog, width=400, height=300)
+        dialog.geometry("680x200")
+        frame = Frame(dialog)
         canvas = Canvas(frame)
-        horizontal_scrollbar = Scrollbar(frame, orient="horizontal", command=canvas.xview)
         vertical_scrollbar = Scrollbar(frame, orient="vertical", command=canvas.yview)
-        canvas.configure(xscrollcommand=horizontal_scrollbar.set,
-                         yscrollcommand=vertical_scrollbar.set)
-        label = Label(canvas, text=label_text, font=("Roboto", 14))
+        canvas.configure(yscrollcommand=vertical_scrollbar.set)
+        label_text = ""
+        command_count = 0
+        for command in self.time_line.changes:
+            label_text += f"{command_count + 1}. {str(command)}\n"
+            command_count += 1
+        if command_count == 0:
+            label_text = "История изменений на данный момент пуста"
+        else:
+            label_text = label_text[:-1]
+
+        label = Label(canvas, text=label_text, font=("Roboto", 14), compound=LEFT, anchor="nw")
         canvas.create_window(0, 0, anchor="nw", window=label)
         canvas.pack(side="left", fill="both", expand=True)
-        horizontal_scrollbar.place(rely=1, relx=0, relwidth=1, anchor="sw")
         vertical_scrollbar.pack(side="right", fill="y")
         canvas.config(scrollregion=canvas.bbox("all"))
         frame.pack(fill="both", expand=True)
@@ -683,11 +677,11 @@ class GraphicalUserInterface:
         cancel_button.place(x=150, y=60)
 
     def apply_split_fragment(self, time, clip_duration, dialog):
-        if not (re.match(r"^[1-9][0-9]*\.?[0-9]*$", time) and 0 < float(time) < clip_duration):
+        if not (re.match(r"^[1-9][0-9]*\.?[0-9]*$", time) and 0 < float(time) < float(clip_duration)):
             self.show_error(f"Секунда должна быть числом между 0 и {clip_duration}")
             return
         dialog.destroy()
-        self.time_line.split_clip(self.picked_indexes[0], time)
+        self.time_line.split_clip(self.picked_indexes[0], float(time))
         self.update_after_command()
 
     def copy_fragment_handler(self):

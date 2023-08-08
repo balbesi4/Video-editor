@@ -7,7 +7,7 @@ class RemoveFragmentCommand(CommandInterface):
         fr_str = ""
         for fragment in self.fragments:
             fr_str += f"{fragment.id + 1}, "
-        fr_str = fr_str[:-1]
+        fr_str = fr_str[:-2]
         return f"Удаление фрагментов {fr_str}"
 
     def __init__(self, time_line, *fragment_ids: int):

@@ -10,7 +10,9 @@ class ConcatenateCommand(CommandInterface):
         fr_str = ""
         for fragment in self.fragments:
             fr_str += f"{fragment.id + 1}, "
-        fr_str = fr_str[:-1]
+        fr_str = fr_str[:-2]
+        if self.smooth:
+            return f"Плавное склеивание фрагментов {fr_str}"
         return f"Склеивание фрагментов {fr_str}"
 
     def __init__(self, time_line, *fragments: Fragment, smooth=False, duration=None):
