@@ -4,6 +4,9 @@ from moviepy.video.fx.all import crop
 
 
 class CropPictureCommand(CommandInterface):
+    def __str__(self):
+        return f"Кроп картинки фрагмента {self.fragment.id + 1}"
+
     def __init__(self, fragment: Fragment, x1=0, y1=0, x2=0, y2=0):
         self.fragment = fragment
         self.old_clip = fragment.clip

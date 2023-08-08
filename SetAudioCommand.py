@@ -4,6 +4,9 @@ import moviepy.editor as mp
 
 
 class SetAudioCommand(CommandInterface):
+    def __str__(self):
+        return f"Установка аудио во фрагменте {self.fragment.id + 1}"
+
     def __init__(self, time_line, audio_path, fragment: Fragment, full=False):
         self.time_line = time_line
         self.new_audio = mp.AudioFileClip(audio_path)

@@ -1,4 +1,3 @@
-from AddCommand import AddCommand
 from CopyFragmentCommand import CopyFragmentCommand
 from CropPIctureCommand import CropPictureCommand
 from ChangeSpeedCommand import ChangeSpeedCommand
@@ -20,8 +19,6 @@ from UploadImageClipCommand import UploadImageClipCommand
 from UploadVideoClipCommand import UploadVideoClipCommand
 import moviepy.editor as mp
 import moviepy.video.fx.all as vfx
-import os
-import cv2
 
 
 class TimeLine:
@@ -29,10 +26,15 @@ class TimeLine:
         self.time_line = []
         self.changes = []
 
-    def add(self, fragment: Fragment):
-        add_command = AddCommand(self, fragment)
-        self.changes.append(add_command)
-        add_command.execute()
+    def upload_video(self, video_path):
+        upload_video_command = UploadVideoClipCommand(self, video_path)
+        self.changes.append(upload_video_command)
+        upload_video_command.execute()
+
+    def upload_image(self, image_path, duration):
+        upload_image_command = UploadImageClipCommand(self, image_path, duration)
+        self.changes.append(upload_image_command)
+        upload_image_command.execute()
 
     def update_ids(self):
         current_id = 0

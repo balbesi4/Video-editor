@@ -3,6 +3,13 @@ from Fragment import Fragment
 
 
 class RemoveFragmentCommand(CommandInterface):
+    def __str__(self):
+        fr_str = ""
+        for fragment in self.fragments:
+            fr_str += f"{fragment.id + 1}, "
+        fr_str = fr_str[:-1]
+        return f"Удаление фрагментов {fr_str}"
+
     def __init__(self, time_line, *fragment_ids: int):
         self.fragments = [fragment for fragment in time_line.time_line if fragment.id in fragment_ids]
         self.time_line = time_line

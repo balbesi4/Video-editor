@@ -4,6 +4,9 @@ import moviepy.audio.fx.all as afx
 
 
 class ChangeVolumeCommand(CommandInterface):
+    def __str__(self):
+        return f"Изменение громкости во фрагменте {self.fragment.id + 1} в {self.vm} раз"
+
     def __init__(self, time_line, volume_multiplier, fragment: Fragment):
         self.vm = volume_multiplier
         self.fragment = fragment

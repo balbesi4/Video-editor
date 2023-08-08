@@ -8,6 +8,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 import moviepy.video.fx.all as vfx
 
+
 class GraphicalUserInterface:
     def __init__(self):
         self.time_line = TimeLine()
@@ -22,7 +23,8 @@ class GraphicalUserInterface:
         self.main_frame.pack_propagate(False)
         self.main_frame.configure(width=300, height=300)
         self.main_frame.pack(anchor="nw")
-        self.main_frame.grid_columnconfigure(0, minsize=300)
+        self.main_frame.grid_columnconfigure(0, minsize=200)
+        self.main_frame.grid_columnconfigure(1, minsize=100)
 
         self.upload_video_button = Button(
             self.main_frame,
@@ -57,10 +59,19 @@ class GraphicalUserInterface:
             fg="#AFFFFF",
             command=lambda: self.undo_command_handler()
         )
-        self.upload_video_button.grid(row=0, column=0, stick="we", padx=25, pady=12)
-        self.upload_image_button.grid(row=1, column=0, stick="we", padx=25, pady=12)
-        self.export_button.grid(row=2, column=0, stick="we", padx=25, pady=12)
+        self.change_story_button = Button(
+            self.main_frame,
+            height=2,
+            font=("Noto Sans Symbols 2", 12),
+            text="🕒",
+            bg="#938CDD",
+            command=lambda: self.story_changes_handler()
+        )
+        self.upload_video_button.grid(row=0, column=0, columnspan=2, stick="we", padx=25, pady=12)
+        self.upload_image_button.grid(row=1, column=0, columnspan=2, stick="we", padx=25, pady=12)
+        self.export_button.grid(row=2, column=0, columnspan=2, stick="we", padx=25, pady=12)
         self.undo_button.grid(row=3, column=0, stick="we", padx=25, pady=12)
+        self.change_story_button.grid(row=3, column=1, stick="we", padx=25, pady=12)
 
         self.command_frame = Frame(self.window, bg="#A055D3")
         self.command_frame.propagate(False)
@@ -236,7 +247,7 @@ class GraphicalUserInterface:
             return
         clip = mp.VideoFileClip(video_path)
         fragment = Fragment(clip, len(self.time_line.time_line), video_path)
-        self.time_line.add(fragment)
+        self.time_line.upload_video(video_path)
         self.update_after_command()
 
     def export_handler(self):
@@ -323,8 +334,33 @@ class GraphicalUserInterface:
         clip = mp.ImageClip(image_path, duration=float(duration))
         fragment = Fragment(clip, len(self.time_line.time_line), image_path)
         dialog.destroy()
-        self.time_line.add(fragment)
+        self.time_line.upload_image(image_path, duration)
         self.update_after_command()
+
+    def story_changes_handler(self):
+        label_text = ""
+        change_number = 1
+        for command in self.time_line.changes:
+            label_text += f"{change_number}. {str(command)}\n"
+            change_number += 1
+        label_text = label_text[:-1]
+        dialog = Toplevel()
+        dialog.grab_set()
+        dialog.resizable(True, False)
+        dialog.geometry("600x400")
+        frame = Frame(dialog, width=400, height=300)
+        canvas = Canvas(frame)
+        horizontal_scrollbar = Scrollbar(frame, orient="horizontal", command=canvas.xview)
+        vertical_scrollbar = Scrollbar(frame, orient="vertical", command=canvas.yview)
+        canvas.configure(xscrollcommand=horizontal_scrollbar.set,
+                         yscrollcommand=vertical_scrollbar.set)
+        label = Label(canvas, text=label_text, font=("Roboto", 14))
+        canvas.create_window(0, 0, anchor="nw", window=label)
+        canvas.pack(side="left", fill="both", expand=True)
+        horizontal_scrollbar.place(rely=1, relx=0, relwidth=1, anchor="sw")
+        vertical_scrollbar.pack(side="right", fill="y")
+        canvas.config(scrollregion=canvas.bbox("all"))
+        frame.pack(fill="both", expand=True)
 
     def change_speed_handler(self):
         dialog = Toplevel()
@@ -444,7 +480,7 @@ class GraphicalUserInterface:
 
     def apply_crop_clip(self, start, end, clip_duration, dialog):
         if not re.match(r"^[1-9][0-9]*\.?[0-9]*$", start) or \
-                not re.match(r"^[1-9][0-9]*\.?[0-9]*$",end) or float(end) < clip_duration:
+                not re.match(r"^[1-9][0-9]*\.?[0-9]*$",end) or float(end) > clip_duration:
             self.show_error(f"Начало и конец нового клипа должны быть числами от 0 до {clip_duration}")
             return
 
@@ -589,7 +625,7 @@ class GraphicalUserInterface:
         full_checkbox = Checkbutton(dialog, variable=full_var)
         full_checkbox.grid(row=0, column=1)
         apply_button = Button(dialog, text="Готово",
-                              command=lambda: self.apply_fade_in(audio_path, full_var.get(), dialog))
+                              command=lambda: self.apply_audio_set(audio_path, full_var.get(), dialog))
         cancel_button = Button(dialog, text="Отменить", command=dialog.destroy)
         apply_button.place(x=50, y=30)
         cancel_button.place(x=120, y=30)
@@ -606,7 +642,7 @@ class GraphicalUserInterface:
     def mirror_handler(self):
         dialog = Toplevel()
         dialog.grab_set()
-        dialog.geometry("300x60")
+        dialog.geometry("220x80")
         dialog.resizable(False, False)
         text_label = Label(dialog, text="Отзеркалить по")
         text_label.grid(row=0, column=0)
@@ -617,8 +653,8 @@ class GraphicalUserInterface:
         apply_button = Button(dialog, text="Готово",
                               command=lambda: self.apply_mirror(mirror_var.get(), dialog))
         cancel_button = Button(dialog, text="Отменить", command=dialog.destroy)
-        apply_button.place(x=150, y=30)
-        cancel_button.place(x=220, y=30)
+        apply_button.place(x=70, y=50)
+        cancel_button.place(x=140, y=50)
 
     def apply_mirror(self, side, dialog):
         x = side == "горизонтали"
@@ -645,7 +681,7 @@ class GraphicalUserInterface:
         cancel_button.place(x=150, y=60)
 
     def apply_split_fragment(self, time, clip_duration, dialog):
-        if not (re.match(r"^[1-9][0-9]*\.?[0-9]*$", time) and 0 < int(time) < clip_duration):
+        if not (re.match(r"^[1-9][0-9]*\.?[0-9]*$", time) and 0 < float(time) < clip_duration):
             self.show_error(f"Секунда должна быть числом между 0 и {clip_duration}")
             return
         dialog.destroy()

@@ -3,6 +3,9 @@ from Fragment import Fragment
 
 
 class CropClipCommand(CommandInterface):
+    def __str__(self):
+        return f"Обрезание клипа фрагмента {self.fragment.id + 1} с {self.start} секунды до {self.end} секунды"
+
     def __init__(self, time_line, crop_start, crop_end, fragment: Fragment):
         self.time_line = time_line
         self.start = crop_start

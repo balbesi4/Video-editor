@@ -3,6 +3,9 @@ from Fragment import Fragment
 
 
 class CopyFragmentCommand(CommandInterface):
+    def __str__(self):
+        return f"Копирование фрагмента {self.fragment.id + 1}"
+
     def __init__(self, time_line, fragment: Fragment):
         self.time_line = time_line
         self.fragment = fragment

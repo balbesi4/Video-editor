@@ -5,6 +5,9 @@ import moviepy.audio.fx.all as afx
 
 
 class FadeOutCommand(CommandInterface):
+    def __str__(self):
+        return f"Fade out во фрагменте {self.fragment.id + 1}"
+
     def __init__(self, time_line, duration, fragment: Fragment):
         self.duration = duration
         self.old_clip = fragment.clip

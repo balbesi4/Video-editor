@@ -4,6 +4,9 @@ import moviepy.video.fx.all as vfx
 
 
 class ChangeSpeedCommand(CommandInterface):
+    def __str__(self):
+        return f"Изменение скорости во фрагменте {self.fragment.id + 1} в {self.sm} раз"
+
     def __init__(self, time_line, speed_multiplier, fragment: Fragment):
         self.sm = speed_multiplier
         self.fragment = fragment
