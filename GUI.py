@@ -56,7 +56,6 @@ class GraphicalUserInterface:
             font=self.main_font,
             text="Отмена",
             bg="#938CDD",
-            fg="#AFFFFF",
             command=lambda: self.undo_command_handler()
         )
         self.change_story_button = Button(
@@ -340,14 +339,17 @@ class GraphicalUserInterface:
     def story_changes_handler(self):
         label_text = ""
         change_number = 1
-        for command in self.time_line.changes:
-            label_text += f"{change_number}. {str(command)}\n"
-            change_number += 1
-        label_text = label_text[:-1]
+        if len(self.time_line.changes) == 0:
+            label_text = "История изменений на данный момент пуста"
+        else:
+            for command in self.time_line.changes:
+                label_text += f"{change_number}. {str(command)}\n"
+                change_number += 1
+            label_text = label_text[:-1]
         dialog = Toplevel()
         dialog.grab_set()
-        dialog.resizable(True, False)
-        dialog.geometry("600x400")
+        dialog.resizable(False, False)
+        dialog.geometry("650x200")
         frame = Frame(dialog, width=400, height=300)
         canvas = Canvas(frame)
         horizontal_scrollbar = Scrollbar(frame, orient="horizontal", command=canvas.xview)

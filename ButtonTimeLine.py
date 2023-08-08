@@ -6,7 +6,7 @@ class ButtonTimeLine:
     def __init__(self, gui, time_line):
         self.time_line = time_line
         self.gui = gui
-        self.buttons = []
+        self.last_column = 0
         canvas = Canvas(self.gui.window, width=750, height=300)
         canvas.place(x=300)
 
@@ -29,4 +29,4 @@ class ButtonTimeLine:
             child.destroy()
 
         for fragment in self.time_line.time_line:
-            self.buttons.append(ButtonFragment(self.gui, self, fragment))
+            ButtonFragment(self.gui, self, fragment)
