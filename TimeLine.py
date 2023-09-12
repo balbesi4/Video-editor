@@ -132,9 +132,8 @@ class TimeLine:
         mirror_command.execute()
 
     def export(self, name: str, fps, width, height, gif=False):
-        final_clips = [fragment.clip.fx(vfx.resize, width=width, height=height) for fragment in
-                       self.time_line]
-        clip_to_export = mp.concatenate_videoclips(final_clips)
+        final_clips = [fragment.clip for fragment in self.time_line]
+        clip_to_export = mp.concatenate_videoclips(final_clips).fx(vfx.resize, width=width, height=height)
         if not gif:
             clip_to_export.write_videofile(name, fps)
         else:

@@ -1,5 +1,6 @@
 from Fragment import Fragment
 from tkinter import *
+import moviepy.editor as mp
 
 
 class ButtonFragment:
@@ -57,6 +58,6 @@ class ButtonFragment:
         label_1.pack(side=TOP)
         label_2 = Label(top_level, text=f"Длительность клипа: {self.fragment.clip.duration}")
         label_2.pack(side=TOP)
-        label_3_text = "Аудио не установлено" if self.fragment.clip.audio is None else f"Громкость клипа: {str(self.fragment.clip.audio.max_volume())[0:4]}"
+        label_3_text = "Аудио не установлено" if self.fragment.clip.audio is None else f"Громкость клипа: {str(self.fragment.clip.audio.set_fps(44100).max_volume())[0:4]}"
         label_3 = Label(top_level, text=label_3_text)
         label_3.pack(side=TOP)
